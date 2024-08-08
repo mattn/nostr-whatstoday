@@ -1,0 +1,6 @@
+secret.yaml
+k8s
+*.sh
+nostr-whatstoday
+backup
+test.json
