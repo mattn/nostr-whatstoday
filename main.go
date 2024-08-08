@@ -32,6 +32,8 @@ var relays = []string{
 	"wss://nos.lol",
 }
 
+var tt bool
+
 type payload struct {
 	Batchcomplete bool `json:"batchcomplete"`
 	Query         struct {
@@ -99,9 +101,14 @@ func postNostr(nsec string, rs []string, content string) error {
 	return nil
 }
 
+func init() {
+	time.Local = time.FixedZone("Local", 9*60*60)
+}
+
 func main() {
 	var ver bool
 	flag.BoolVar(&ver, "v", false, "show version")
+	flag.BoolVar(&tt, "t", false, "test")
 	flag.Parse()
 
 	if ver {
@@ -160,6 +167,11 @@ func main() {
 		fmt.Fprintln(&buf, "* "+text)
 	}
 	fmt.Fprintln(&buf, "#今日は何の日")
+
+	if tt {
+		fmt.Print(buf.String())
+		os.Exit(0)
+	}
 
 	postNostr(os.Getenv("BOT_NSEC"), relays, buf.String())
 }
