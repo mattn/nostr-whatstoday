@@ -11,9 +11,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
+	"github.com/jayco/go-emoji-flag"
 	"github.com/m-m-f/gowiki"
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/nbd-wtf/go-nostr/nip19"
@@ -32,7 +34,7 @@ var relays = []string{
 	"wss://nos.lol",
 }
 
-var tt bool
+var tt string
 
 type payload struct {
 	Batchcomplete bool `json:"batchcomplete"`
@@ -105,10 +107,16 @@ func init() {
 	time.Local = time.FixedZone("Local", 9*60*60)
 }
 
+type dummyPageGetter struct{}
+
+func (g *dummyPageGetter) Get(wl gowiki.WikiLink) (string, error) {
+	return "", nil
+}
+
 func main() {
 	var ver bool
 	flag.BoolVar(&ver, "v", false, "show version")
-	flag.BoolVar(&tt, "t", false, "test")
+	flag.StringVar(&tt, "t", "", "test")
 	flag.Parse()
 
 	if ver {
@@ -116,7 +124,15 @@ func main() {
 		os.Exit(0)
 	}
 
-	date := time.Now().Format("1月2日")
+	now := time.Now()
+	if tt != "" {
+		var err error
+		now, err = time.Parse("1月2日", tt)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	date := now.Format("1月2日")
 	resp, err := http.Get(`https://ja.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&formatversion=2&titles=` + url.QueryEscape(date))
 	if err != nil {
 		log.Fatal(err)
@@ -152,7 +168,15 @@ func main() {
 			continue
 		}
 
-		article, err := gowiki.ParseArticle("foo", line[1:], &gowiki.DummyPageGetter{})
+		line = regexp.MustCompile(`{{仮リンク\|`).ReplaceAllString(line, "{{")
+		line = regexp.MustCompile(`{{([^|]+).*?}}`).ReplaceAllString(line, "$1")
+		line = regexp.MustCompile(`\w\w+`).ReplaceAllStringFunc(line, func(s string) string {
+			if ss := emojiflag.GetFlag(s); ss != "" {
+				return ss
+			}
+			return s
+		})
+		article, err := gowiki.ParseArticle("foo", line[1:], &dummyPageGetter{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -168,7 +192,7 @@ func main() {
 	}
 	fmt.Fprintln(&buf, "#今日は何の日")
 
-	if tt {
+	if tt != "" {
 		fmt.Print(buf.String())
 		os.Exit(0)
 	}

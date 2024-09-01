@@ -3,6 +3,7 @@ module github.com/mattn/nostr-whatstoday
 go 1.22.2
 
 require (
+	github.com/jayco/go-emoji-flag v0.0.0-20190810054606-01604da018da
 	github.com/m-m-f/gowiki v0.0.0-20180103212159-93aa7513fb32
 	github.com/nbd-wtf/go-nostr v0.34.5
 )
