@@ -169,7 +169,7 @@ func main() {
 		}
 
 		line = regexp.MustCompile(`{{仮リンク\|`).ReplaceAllString(line, "{{")
-		line = regexp.MustCompile(`{{([^|]+).*?}}`).ReplaceAllString(line, "$1")
+		line = regexp.MustCompile(`{{([^|}]+).*?}}`).ReplaceAllString(line, "$1")
 		line = regexp.MustCompile(`\w\w+`).ReplaceAllStringFunc(line, func(s string) string {
 			if ss := emojiflag.GetFlag(s); ss != "" {
 				return ss
