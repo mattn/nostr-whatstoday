@@ -113,6 +113,19 @@ func (g *dummyPageGetter) Get(wl gowiki.WikiLink) (string, error) {
 	return "", nil
 }
 
+func httpGetRetry(url string, maxRetries int) (*http.Response, error) {
+	var resp *http.Response
+	var err error
+	for i := 0; i < maxRetries; i++ {
+		resp, err = http.Get(url)
+		if err == nil {
+			return resp, nil
+		}
+		time.Sleep(2 * time.Second)
+	}
+	return nil, err
+}
+
 func main() {
 	var ver bool
 	flag.BoolVar(&ver, "v", false, "show version")
@@ -133,7 +146,7 @@ func main() {
 		}
 	}
 	date := now.Format("1月2日")
-	resp, err := http.Get(`https://ja.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&formatversion=2&titles=` + url.QueryEscape(date))
+	resp, err := httpGetRetry(`https://ja.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&formatversion=2&titles=`+url.QueryEscape(date), 5)
 	if err != nil {
 		log.Fatal(err)
 	}
