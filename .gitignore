@@ -1,6 +1,7 @@
-secret.yaml
+nostr-whatstoday
+nostr-whatstoday.exe
 k8s
 *.sh
-nostr-whatstoday
-backup
-test.json
+*.bat
+*.cmd
+*.json
