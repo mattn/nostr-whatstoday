@@ -121,6 +121,7 @@ func httpGetRetry(url string, maxRetries int) (*http.Response, error) {
 		if err == nil {
 			return resp, nil
 		}
+		log.Println(err)
 		time.Sleep(2 * time.Second)
 	}
 	return nil, err
@@ -149,6 +150,9 @@ func main() {
 	resp, err := httpGetRetry(`https://ja.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&formatversion=2&titles=`+url.QueryEscape(date), 5)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusNotFound {
+		return
 	}
 	defer resp.Body.Close()
 	var p payload
