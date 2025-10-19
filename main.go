@@ -116,9 +116,14 @@ func (g *dummyPageGetter) Get(wl gowiki.WikiLink) (string, error) {
 func httpGetRetry(url string, maxRetries int) (*http.Response, error) {
 	var resp *http.Response
 	var err error
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 	for i := 0; i < maxRetries; i++ {
-		resp, err = http.Get(url)
-		if err == nil {
+		resp, err = http.DefaultClient.Do(req)
+		if resp != nil && resp.StatusCode == http.StatusOK {
 			return resp, nil
 		}
 		log.Println(err)
@@ -150,9 +155,6 @@ func main() {
 	resp, err := httpGetRetry(`https://ja.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&formatversion=2&titles=`+url.QueryEscape(date), 5)
 	if err != nil {
 		log.Fatal(err)
-	}
-	if resp.StatusCode != http.StatusNotFound {
-		return
 	}
 	defer resp.Body.Close()
 	var p payload
