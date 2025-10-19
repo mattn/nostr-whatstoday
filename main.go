@@ -158,7 +158,7 @@ func main() {
 	var p payload
 	err = json.NewDecoder(resp.Body).Decode(&p)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("could not parse JSON: %v", err)
 	}
 
 	content := p.Query.Pages[0].Revisions[0].Content
@@ -166,12 +166,12 @@ func main() {
 	begin := "\n== 記念日・年中行事 ==\n"
 	pos := strings.Index(content, begin)
 	if pos < 0 {
-		log.Fatal("invalid")
+		log.Fatal("invalid content")
 	}
 	content = content[pos+len(begin):]
 	pos = strings.Index(content, "\n==")
 	if pos < 0 {
-		log.Fatal("invalid")
+		log.Fatal("invalid content")
 	}
 	content = content[:pos]
 
@@ -195,7 +195,7 @@ func main() {
 		})
 		article, err := gowiki.ParseArticle("foo", line[1:], &dummyPageGetter{})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("cannot parse article %q: %v", line[1:], err)
 		}
 		text := strings.TrimSpace(article.GetText())
 		pos = strings.Index(text, "（）")
