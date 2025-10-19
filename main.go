@@ -216,5 +216,6 @@ func main() {
 		os.Exit(0)
 	}
 
+	fmt.Println(buf.String())
 	postNostr(os.Getenv("BOT_NSEC"), relays, buf.String())
 }
