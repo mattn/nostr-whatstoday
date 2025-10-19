@@ -151,6 +151,8 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+
+	log.Println("fetching...")
 	date := now.Format("1月2日")
 	resp, err := httpGetRetry(`https://ja.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&formatversion=2&titles=`+url.QueryEscape(date), 5)
 	if err != nil {
@@ -163,6 +165,7 @@ func main() {
 		log.Fatalf("could not parse JSON: %v", err)
 	}
 
+	log.Println("analysing...")
 	content := p.Query.Pages[0].Revisions[0].Content
 
 	begin := "\n== 記念日・年中行事 ==\n"
@@ -177,6 +180,7 @@ func main() {
 	}
 	content = content[:pos]
 
+	log.Println("createing message...")
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, date+"は")
 	for _, line := range strings.Split(content, "\n") {
