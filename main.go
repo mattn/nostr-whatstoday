@@ -180,7 +180,7 @@ func main() {
 	}
 	content = content[:pos]
 
-	log.Println("createing message...")
+	log.Println("creating message...")
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, date+"は")
 	for _, line := range strings.Split(content, "\n") {
